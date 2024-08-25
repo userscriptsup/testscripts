@@ -119,8 +119,8 @@ declare namespace Userscripts {
 	}
 
 	/**
-	 *
-	 * @see {@link }
+	 * The `details` object for `GM.xmlHttpRequest(details)` arguments.
+	 * @see {@link https://wiki.greasespot.net/GM.xmlHttpRequest#Arguments}
 	 */
 	interface XHRDetails {
 		/**
