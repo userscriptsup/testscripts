@@ -1,0 +1,4 @@
+// https://code.visualstudio.com/docs/editor/extension-gallery#_workspace-recommended-extensions
+{
+	"recommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+}
