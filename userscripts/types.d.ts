@@ -110,35 +110,53 @@ declare namespace Userscripts {
 		setClipboard(data: string, type: string = "text/plain"): Promise<boolean>;
 
 		/**
+		 * Usage: `const xhr = GM.xmlHttpRequest({...}); ... xhr.abort(); const response = await xhr;`
+		 *
+		 * or `const response = await GM.xmlHttpRequest({...});`
 		 *
 		 * @param details
-		 * @returns an object with a single property, abort, which is a Function to abort the request.
+		 * @returns a custom promise contains an additional property `abort`
+		 */
+		xmlHttpRequest(details: XHRDetails): XHRPromise<XHRResponse>;
+	}
+
+	/**
+	 * The custom XHR Promise contains an additional property `abort`
+	 */
+	interface XHRPromise<T> extends Promise<T> {
+		/**
+		 * A Function to abort the XHR request.
+		 *
 		 * Usage: `const xhr = GM.xmlHttpRequest({...}); ... xhr.abort();`
 		 */
-		xmlHttpRequest(details: XHRDetails): { abort(): void };
+		abort(): void;
 	}
+
+	/**
+	 * Legacy Synchronous `GM_xmlhttpRequest`
+	 *
+	 * Usage: `const xhr = GM.xmlHttpRequest({...}); ... xhr.abort();`
+	 */
+	type GM_xmlhttpRequest = (details: XHRDetails) => { abort(): void };
+
+	type XHRDetails = XHRDetailsWithMultiTypeData | XHRDetailsWithLegacyBinary;
 
 	/**
 	 * The `details` object for `GM.xmlHttpRequest(details)` arguments.
 	 * @see {@link https://wiki.greasespot.net/GM.xmlHttpRequest#Arguments}
 	 */
-	interface XHRDetails {
-		/**
-		 * Optional, default `false`. When true, the `data` is sent as a Blob.
-		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#body}
-		 */
-		binary?: boolean;
+	interface XHRDetailsWithMultiTypeData {
+		/** *Deprecated, use multi-type `data` directly instead. */
+		binary?: never;
 
 		/**
 		 * Optional. Data to send in the request body. Usually for `POST` method requests.
-		 * If the `data` field contains form-encoded data, you usually must also set the header `'Content-Type': 'application/x-www-form-urlencoded'` in the `headers` field.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#body}
 		 */
-		data?: string;
+		data?: Parameters<XMLHttpRequest["send"]>[0];
 
 		/**
 		 * Optional. A set of headers to include in the request.
-		 * If the `data` field contains form-encoded data, you usually must also set the header `'Content-Type': 'application/x-www-form-urlencoded'` in the `headers` field.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader}
 		 */
 		headers?: { [x: string]: string };
@@ -165,7 +183,7 @@ declare namespace Userscripts {
 		 * Specifies the type of the response.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType}
 		 */
-		responseType?: string;
+		responseType?: XMLHttpRequestResponseType;
 
 		/**
 		 * The time in milliseconds a request can take before automatically being terminated.
@@ -232,6 +250,25 @@ declare namespace Userscripts {
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout_event}
 		 */
 		ontimeout?: (response: XHRResponse) => void;
+	}
+
+	interface XHRDetailsWithLegacyBinary
+		extends Omit<XHRDetailsWithMultiTypeData, "data"> {
+		/**
+		 * *Deprecated, use multi-type `data` directly instead.
+		 *
+		 * Optional, default `false`. When `true`, the `data` string is sent as a `Uint8Array`.
+		 *
+		 * NOTE: If `data` is not a `string`, the `binary` option will ignored.
+		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#body}
+		 */
+		binary: boolean;
+
+		/**
+		 * Optional. Data to send in the request body. Usually for `POST` method requests.
+		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#body}
+		 */
+		data: string;
 	}
 
 	/**

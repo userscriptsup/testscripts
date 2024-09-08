@@ -8,6 +8,6 @@ declare global {
 	/** An alias for `GM.info`. */
 	const GM_info: typeof GM.info;
 
-	/** An alias for `GM.xmlHttpRequest`, works exactly the same. */
-	const GM_xmlhttpRequest: typeof GM.xmlHttpRequest;
+	/** Legacy Synchronous `GM_xmlhttpRequest` */
+	const GM_xmlhttpRequest: Userscripts.GM_xmlhttpRequest;
 }
