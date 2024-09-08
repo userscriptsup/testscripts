@@ -267,7 +267,7 @@ declare namespace Userscripts {
 		 * Returns the response type.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType}
 		 */
-		responseType: "" | "arraybuffer" | "blob" | "document" | "json" | "text";
+		responseType: XMLHttpRequestResponseType;
 
 		/**
 		 * Returns the serialized URL of the response or the empty string if the URL is null.
