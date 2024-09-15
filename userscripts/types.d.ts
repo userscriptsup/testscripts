@@ -117,7 +117,9 @@ declare namespace Userscripts {
 		 * @param details
 		 * @returns a custom promise contains an additional property `abort`
 		 */
-		xmlHttpRequest(details: XHRDetails): XHRPromise<XHRResponse>;
+		xmlHttpRequest<T extends XMLHttpRequestResponseType>(
+			details: XHRDetails<T>,
+		): XHRPromise<XHRResponse<T>>;
 	}
 
 	/**
@@ -137,15 +139,19 @@ declare namespace Userscripts {
 	 *
 	 * Usage: `const xhr = GM.xmlHttpRequest({...}); ... xhr.abort();`
 	 */
-	type GM_xmlhttpRequest = (details: XHRDetails) => { abort(): void };
+	type GM_xmlhttpRequest = <T extends XMLHttpRequestResponseType>(
+		details: XHRDetails<T>,
+	) => { abort(): void };
 
-	type XHRDetails = XHRDetailsWithMultiTypeData | XHRDetailsWithLegacyBinary;
+	type XHRDetails<T extends XMLHttpRequestResponseType> =
+		| XHRDetailsWithMultiTypeData<T>
+		| XHRDetailsWithLegacyBinary<T>;
 
 	/**
 	 * The `details` object for `GM.xmlHttpRequest(details)` arguments.
 	 * @see {@link https://wiki.greasespot.net/GM.xmlHttpRequest#Arguments}
 	 */
-	interface XHRDetailsWithMultiTypeData {
+	interface XHRDetailsWithMultiTypeData<T extends XMLHttpRequestResponseType> {
 		/** *Deprecated, use multi-type `data` directly instead. */
 		binary?: never;
 
@@ -183,7 +189,7 @@ declare namespace Userscripts {
 		 * Specifies the type of the response.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType}
 		 */
-		responseType?: XMLHttpRequestResponseType;
+		responseType?: T;
 
 		/**
 		 * The time in milliseconds a request can take before automatically being terminated.
@@ -207,53 +213,53 @@ declare namespace Userscripts {
 		 * Fired when a request has been aborted, for example because the program called `abort()`.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort_event}
 		 */
-		onabort?: (response: XHRResponse) => void;
+		onabort?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired when the request encountered an error.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/error_event}
 		 */
-		onerror?: (response: XHRResponse) => void;
+		onerror?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired when an `XMLHttpRequest` transaction completes successfully.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/load_event}
 		 */
-		onload?: (response: XHRResponse) => void;
+		onload?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired when a request has completed, whether successfully (after `load`) or unsuccessfully (after `abort` or `error`).
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/loadend_event}
 		 */
-		onloadend?: (response: XHRResponse) => void;
+		onloadend?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired when a request has started to load data.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/loadstart_event}
 		 */
-		onloadstart?: (response: XHRResponse) => void;
+		onloadstart?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired periodically when a request receives more data.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/progress_event}
 		 */
-		onprogress?: (response: XHRResponse) => void;
+		onprogress?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired whenever the `readyState` property changes.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readystatechange_event}
 		 */
-		onreadystatechange?: (response: XHRResponse) => void;
+		onreadystatechange?: (response: XHRResponse<T>) => void;
 
 		/**
 		 * Fired when progress is terminated due to preset time expiring.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout_event}
 		 */
-		ontimeout?: (response: XHRResponse) => void;
+		ontimeout?: (response: XHRResponse<T>) => void;
 	}
 
-	interface XHRDetailsWithLegacyBinary
-		extends Omit<XHRDetailsWithMultiTypeData, "data"> {
+	interface XHRDetailsWithLegacyBinary<T>
+		extends Omit<XHRDetailsWithMultiTypeData<T>, "data"> {
 		/**
 		 * *Deprecated, use multi-type `data` directly instead.
 		 *
@@ -275,7 +281,7 @@ declare namespace Userscripts {
 	 * Properties based on a standard `XMLHttpRequest` object.
 	 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest#instance_properties}
 	 */
-	interface XHRResponse {
+	interface XHRResponse<T extends XMLHttpRequestResponseType> {
 		/**
 		 * Returns a number representing the state of the request.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState}
@@ -286,7 +292,15 @@ declare namespace Userscripts {
 		 * Returns the response body.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response}
 		 */
-		response: any;
+		response: T extends "arraybuffer"
+			? ArrayBuffer | null
+			: T extends "blob"
+				? Blob | null
+				: T extends "document"
+					? Document | null
+					: T extends "json"
+						? any | null
+						: string | null;
 
 		/**
 		 * All the response headers, separated by CRLF, as a string, or `null` if no response has been received.
@@ -298,13 +312,13 @@ declare namespace Userscripts {
 		 * Returns a string that contains the response to the request as text, or `null` if the request was unsuccessful or has not yet been sent.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText}
 		 */
-		responseText: string;
+		responseText?: T extends "text" ? string : never;
 
 		/**
 		 * Returns the response type.
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType}
 		 */
-		responseType: XMLHttpRequestResponseType;
+		responseType: T;
 
 		/**
 		 * Returns the serialized URL of the response or the empty string if the URL is null.
@@ -329,11 +343,5 @@ declare namespace Userscripts {
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout}
 		 */
 		timeout: number;
-
-		/**
-		 * Returns `true` if cross-site `Access-Control` requests should be made using credentials such as cookies or authorization headers; otherwise `false`.
-		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials}
-		 */
-		withCredentials: boolean;
 	}
 }
