@@ -68,14 +68,14 @@ declare namespace Userscripts {
 		listValues(): Promise<Array>;
 
 		/**
-		 * *Deprecated, will be removed in Userscripts v6.0
+		 * @deprecated will be removed in Userscripts v6.0
 		 * @see {@link https://github.com/quoid/userscripts/issues/667}
 		 * @returns a promise, resolved with Any data that is persistent as long as this tab is open if succeeds, rejected with error message if fails
 		 */
 		getTab(): Promise<any>;
 
 		/**
-		 * *Deprecated, will be removed in Userscripts v6.0
+		 * @deprecated will be removed in Userscripts v6.0
 		 * @see {@link https://github.com/quoid/userscripts/issues/667}
 		 * @param tabObj any can be JSON-serialized
 		 * @returns a promise, resolved if succeeds, rejected with error message if fails
@@ -100,7 +100,7 @@ declare namespace Userscripts {
 		closeTab(tabId?: number): Promise<void>;
 
 		/**
-		 * *Deprecated, will be removed in Userscripts v6.0
+		 * @deprecated will be removed in Userscripts v6.0
 		 * @see {@link https://github.com/quoid/userscripts/issues/655}
 		 * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/ClipboardEvent/clipboardData}
 		 * @param data
@@ -152,7 +152,7 @@ declare namespace Userscripts {
 	 * @see {@link https://wiki.greasespot.net/GM.xmlHttpRequest#Arguments}
 	 */
 	interface XHRDetailsWithMultiTypeData<T extends XMLHttpRequestResponseType> {
-		/** *Deprecated, use multi-type `data` directly instead. */
+		/** @deprecated use multi-type `data` directly instead. */
 		binary?: never;
 
 		/**
@@ -261,7 +261,7 @@ declare namespace Userscripts {
 	interface XHRDetailsWithLegacyBinary<T>
 		extends Omit<XHRDetailsWithMultiTypeData<T>, "data"> {
 		/**
-		 * *Deprecated, use multi-type `data` directly instead.
+		 * @deprecated use multi-type `data` directly instead.
 		 *
 		 * Optional, default `false`. When `true`, the `data` string is sent as a `Uint8Array`.
 		 *
